@@ -20,6 +20,7 @@ import Profile from "views/examples/Profile.js";
 import Maps from "views/examples/Maps.js";
 import Register from "views/examples/Register.js";
 import Login from "views/examples/Login.js";
+import VerifyEmail from "views/examples/VerifyEmail";
 import Tables from "views/examples/Tables.js";
 import Icons from "views/examples/Icons.js";
 
@@ -71,6 +72,13 @@ var routes = [
     name: "Register",
     icon: "ni ni-circle-08 text-pink",
     component: <Register />,
+    layout: "/auth",
+  },
+  {
+    path: "/verifyEmail",
+    name: "VerifyEmail",
+    icon: "ni ni-circle-08 text-pink",
+    component: <VerifyEmail />,
     layout: "/auth",
   },
 ];
