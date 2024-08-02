@@ -22,6 +22,7 @@ import { AuthenticationDetails, CognitoUser, CognitoUserPool } from 'amazon-cogn
 import { useNavigate } from 'react-router-dom';
 import React, { useState } from 'react';
 import awsconfig from "../../aws-exports";
+import axios from 'axios';
 
 const userPool = new CognitoUserPool({
     UserPoolId: awsconfig.userPoolId,
@@ -30,10 +31,23 @@ const userPool = new CognitoUserPool({
 
 const Login = () => {
 
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [errorMessage, setErrorMessage] = useState('');
-    const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const navigate = useNavigate();
+
+  const getUserInfo = async () => {
+    try{
+      const response = await axios.get(`https://gzb9r51nek.execute-api.us-east-1.amazonaws.com/build/getUserInfo?email=${email}`);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      console.log(response);
+
+    } catch(error){
+
+    }
+  }
 
   const handleLogin = (event) => {
     event.preventDefault();
@@ -61,7 +75,8 @@ const Login = () => {
             const accessToken = result.getAccessToken().getJwtToken();
             localStorage.setItem('userEmail', email); 
             localStorage.setItem('userToken', accessToken);
-            navigate('/admin/index');
+            getUserInfo();
+            // navigate('/admin/index');
         },
         onFailure: (err) => {
             console.error('Login failed: ', err);

@@ -35,15 +35,35 @@ import AuthLayout from "layouts/Auth.js";
 //   }
 // });
 
+const PrivateRoute = ({ element }) => {
+  const email = localStorage.getItem('userEmail');
+  const token = localStorage.getItem('userToken');
+
+  // Check if both email and token are present in localStorage
+  if (!email || !token) {
+    // Redirect to login page if not authenticated
+    return <Navigate to="/auth/login" replace />;
+  }
+
+  // Render the element if authenticated
+  return element;
+};
+
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
 root.render(
   <BrowserRouter>
     <Routes>
-      <Route path="/admin/*" element={<AdminLayout />} />
       <Route path="/auth/*" element={<AuthLayout />} />
-      {/* <Route path="*" element={<Navigate to="/admin/index" replace />} /> */}
+      
+      {/* PrivateRoute wraps AdminLayout to protect the /admin/* routes */}
+      <Route
+        path="/admin/*"
+        element={<PrivateRoute element={<AdminLayout />} />}
+      />
+      
+      {/* Redirect any other routes to the login page */}
       <Route path="*" element={<Navigate to="/auth/login" replace />} />
     </Routes>
   </BrowserRouter>

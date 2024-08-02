@@ -1,11 +1,13 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Create s3 buckets for the Argon Dashboard.
+Description: Create services required for the Argon Dashboard.
 
 Resources:
+  # Services required for User Registration and Login
+  # S3 Bucket for static hosting
   StaticWebsiteBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: argons3bucket
+      BucketName: argondashboards3bucket
       WebsiteConfiguration:
         IndexDocument: index.html
         ErrorDocument: index.html
@@ -26,10 +28,134 @@ Resources:
             Effect: Allow
             Principal: '*'
             Action: s3:GetObject
-            Resource: 'arn:aws:s3:::argons3bucket/*'
+            Resource: 'arn:aws:s3:::argondashboards3bucket/*'
+
+  # AWS DynamoDB User Table
+  UserTable:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      TableName: "Users"
+      AttributeDefinitions:
+        - AttributeName: "user_id"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "user_id"
+          KeyType: "HASH"
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
+    # AWS Lambda to store user info into DynamoDB
+  StoreUserInfoInDatabase:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Handler: index.lambda_handler
+      FunctionName: storeUserInfoInDatabase
+      Role: arn:aws:iam::267925477785:role/LabRole
+      Runtime: python3.12
+      Timeout: 40
+      MemorySize: 128
+      Code:
+        ZipFile: |
+          import json
+          import boto3
+          from datetime import datetime
+
+          dynamodb = boto3.resource('dynamodb')
+          table = dynamodb.Table('Users')
+
+          def lambda_handler(event, context):
+            # Extract user attributes from the event
+            user_attributes = event['request']['userAttributes']
+            
+            # Prepare item to be inserted into DynamoDB
+            item = {
+              'user_id': user_attributes['sub'],
+              'email': user_attributes['email'],
+              'firstName': user_attributes.get('given_name', ''),
+              'lastName': user_attributes.get('family_name', ''),
+              'createdAt': datetime.utcnow().isoformat()
+            }
+            
+            # Insert item into DynamoDB
+            try:
+              table.put_item(Item=item)
+              print('User data inserted successfully')
+            except Exception as e:
+              print(f'Error inserting user data: {e}')
+            
+            # Return event back to Cognito
+            return event
+
+  # Amazon Cognito for use authentication
+  ArgonDashboardUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: ArgonDashboardUserPool
+      UsernameAttributes:
+        - email
+      AutoVerifiedAttributes:
+        - email
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: false
+          RequireUppercase: true
+      Schema:
+        - Name: email
+          AttributeDataType: String
+          Mutable: true
+          Required: true
+          StringAttributeConstraints:
+            MinLength: "1"
+            MaxLength: "256"
+        - Name: given_name
+          AttributeDataType: String
+          Mutable: true
+          Required: true
+          StringAttributeConstraints:
+            MinLength: "1"
+            MaxLength: "256"
+        - Name: family_name
+          AttributeDataType: String
+          Mutable: true
+          Required: true
+          StringAttributeConstraints:
+            MinLength: "1"
+            MaxLength: "256"
+      LambdaConfig:
+        PostConfirmation: !GetAtt StoreUserInfoInDatabase.Arn
+
+  ArgonDashboardUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: ArgonDashboardUserPoolClient
+      UserPoolId: !Ref ArgonDashboardUserPool
+      GenerateSecret: false
+      ExplicitAuthFlows:
+        - ALLOW_USER_PASSWORD_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+        - ALLOW_USER_SRP_AUTH
+
+  # Lambda permission to allow Cognito to invoke the Lambda function
+  CognitoLambdaInvokePermission:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      Action: "lambda:InvokeFunction"
+      FunctionName: !GetAtt StoreUserInfoInDatabase.Arn
+      Principal: "cognito-idp.amazonaws.com"
+      SourceArn: !Sub arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${ArgonDashboardUserPool}
 
 Outputs:
   WebsiteURL:
     Description: "URL for the static website hosted on S3"
     Value: !GetAtt StaticWebsiteBucket.WebsiteURL
+  UserPoolId:
+    Description: The ID of the Cognito User Pool for Argon Dashboard.
+    Value: !Ref ArgonDashboardUserPool
+  UserPoolClientId:
+    Description: The ID of the Cognito User Pool Client for Argon Dashboard.
+    Value: !Ref ArgonDashboardUserPoolClient
 
