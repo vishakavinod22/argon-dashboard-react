@@ -2,6 +2,34 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: Create Cognito User Pool to store user's credentials for the Argon Dashboard.
 
 Resources:
+  # S3 Bucket for static hosting
+  StaticWebsiteBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: argons3bucket
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: index.html
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+
+  WebsiteBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref StaticWebsiteBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: "AddPerm"
+            Effect: Allow
+            Principal: '*'
+            Action: s3:GetObject
+            Resource: 'arn:aws:s3:::argons3bucket/*'
+
+  # Amazon Cognito for use authentication
   ArgonDashboardUserPool:
     Type: AWS::Cognito::UserPool
     Properties:
@@ -52,6 +80,9 @@ Resources:
         - ALLOW_USER_SRP_AUTH
 
 Outputs:
+  WebsiteURL:
+    Description: "URL for the static website hosted on S3"
+    Value: !GetAtt StaticWebsiteBucket.WebsiteURL
   UserPoolId:
     Description: The ID of the Cognito User Pool for Argon Dashboard.
     Value: !Ref ArgonDashboardUserPool

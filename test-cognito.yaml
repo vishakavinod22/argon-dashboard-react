@@ -1,59 +1,35 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Create Cognito User Pool to store user's credentials for the Argon Dashboard.
+Description: Create s3 buckets for the Argon Dashboard.
 
 Resources:
-  ArgonDashboardUserPool:
-    Type: AWS::Cognito::UserPool
+  StaticWebsiteBucket:
+    Type: AWS::S3::Bucket
     Properties:
-      UserPoolName: ArgonDashboardUserPool
-      UsernameAttributes:
-        - email
-      AutoVerifiedAttributes:
-        - email
-      Policies:
-        PasswordPolicy:
-          MinimumLength: 8
-          RequireLowercase: true
-          RequireNumbers: true
-          RequireSymbols: false
-          RequireUppercase: true
-      Schema:
-        - Name: email
-          AttributeDataType: String
-          Mutable: true
-          Required: true
-          StringAttributeConstraints:
-            MinLength: "1"
-            MaxLength: "256"
-        - Name: given_name
-          AttributeDataType: String
-          Mutable: true
-          Required: true
-          StringAttributeConstraints:
-            MinLength: "1"
-            MaxLength: "256"
-        - Name: family_name
-          AttributeDataType: String
-          Mutable: true
-          Required: true
-          StringAttributeConstraints:
-            MinLength: "1"
-            MaxLength: "256"
+      BucketName: argons3bucket
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: index.html
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
 
-  ArgonDashboardUserPoolClient:
-    Type: AWS::Cognito::UserPoolClient
+  WebsiteBucketPolicy:
+    Type: AWS::S3::BucketPolicy
     Properties:
-      ClientName: ArgonDashboardUserPoolClient
-      UserPoolId: !Ref ArgonDashboardUserPool
-      GenerateSecret: false
-      ExplicitAuthFlows:
-        - ALLOW_USER_PASSWORD_AUTH
-        - ALLOW_REFRESH_TOKEN_AUTH
+      Bucket: !Ref StaticWebsiteBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: "AddPerm"
+            Effect: Allow
+            Principal: '*'
+            Action: s3:GetObject
+            Resource: 'arn:aws:s3:::argons3bucket/*'
 
 Outputs:
-  UserPoolId:
-    Description: The ID of the Cognito User Pool for Argon Dashboard.
-    Value: !Ref ArgonDashboardUserPool
-  UserPoolClientId:
-    Description: The ID of the Cognito User Pool Client for Argon Dashboard.
-    Value: !Ref ArgonDashboardUserPoolClient
+  WebsiteURL:
+    Description: "URL for the static website hosted on S3"
+    Value: !GetAtt StaticWebsiteBucket.WebsiteURL
+
