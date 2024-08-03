@@ -60,11 +60,16 @@ const Admin = (props) => {
     return "Brand";
   };
 
+  const filterRoutes = (routes) => {
+    const excludedPaths = ['/login', '/register', '/verifyEmail'];
+    return routes.filter(route => !excludedPaths.includes(route.path));
+  };
+
   return (
     <>
       <Sidebar
         {...props}
-        routes={routes}
+        routes={filterRoutes(routes)}
         logo={{
           innerLink: "/admin/index",
           imgSrc: require("../assets/img/brand/argon-react.png"),

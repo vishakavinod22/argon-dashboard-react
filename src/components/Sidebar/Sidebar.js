@@ -22,35 +22,8 @@ import { NavLink as NavLinkRRD, Link } from "react-router-dom";
 import { PropTypes } from "prop-types";
 
 // reactstrap components
-import {
-  Button,
-  Card,
-  CardHeader,
-  CardBody,
-  CardTitle,
-  Collapse,
-  DropdownMenu,
-  DropdownItem,
-  UncontrolledDropdown,
-  DropdownToggle,
-  FormGroup,
-  Form,
-  Input,
-  InputGroupAddon,
-  InputGroupText,
-  InputGroup,
-  Media,
-  NavbarBrand,
-  Navbar,
-  NavItem,
-  NavLink,
-  Nav,
-  Progress,
-  Table,
-  Container,
-  Row,
-  Col,
-} from "reactstrap";
+import { Button, Card, CardHeader, CardBody, CardTitle, Collapse, DropdownMenu, DropdownItem, UncontrolledDropdown, DropdownToggle, FormGroup, Form, Input, InputGroupAddon, InputGroupText, InputGroup, Media, NavbarBrand, Navbar, NavItem, NavLink, Nav, Progress, Table, Container, Row, Col } from "reactstrap";
+
 
 var ps;
 
@@ -161,7 +134,7 @@ const Sidebar = (props) => {
                 <i className="ni ni-single-02" />
                 <span>My profile</span>
               </DropdownItem>
-              <DropdownItem to="/admin/user-profile" tag={Link}>
+              {/* <DropdownItem to="/admin/user-profile" tag={Link}>
                 <i className="ni ni-settings-gear-65" />
                 <span>Settings</span>
               </DropdownItem>
@@ -172,7 +145,7 @@ const Sidebar = (props) => {
               <DropdownItem to="/admin/user-profile" tag={Link}>
                 <i className="ni ni-support-16" />
                 <span>Support</span>
-              </DropdownItem>
+              </DropdownItem> */}
               <DropdownItem divider />
               <DropdownItem href="#pablo" onClick={(e) => e.preventDefault()}>
                 <i className="ni ni-user-run" />
@@ -236,19 +209,19 @@ const Sidebar = (props) => {
           {/* Navigation */}
           <Nav className="mb-md-3" navbar>
             <NavItem>
-              <NavLink href="https://demos.creative-tim.com/argon-dashboard-react/#/documentation/overview?ref=adr-admin-sidebar">
+              <NavLink href="https://demos.creative-tim.com/argon-dashboard-react/#/documentation/overview?ref=adr-admin-sidebar" target="_blank">
                 <i className="ni ni-spaceship" />
                 Getting started
               </NavLink>
             </NavItem>
             <NavItem>
-              <NavLink href="https://demos.creative-tim.com/argon-dashboard-react/#/documentation/colors?ref=adr-admin-sidebar">
+              <NavLink href="https://demos.creative-tim.com/argon-dashboard-react/#/documentation/colors?ref=adr-admin-sidebar" target="_blank">
                 <i className="ni ni-palette" />
                 Foundation
               </NavLink>
             </NavItem>
             <NavItem>
-              <NavLink href="https://demos.creative-tim.com/argon-dashboard-react/#/documentation/alerts?ref=adr-admin-sidebar">
+              <NavLink href="https://demos.creative-tim.com/argon-dashboard-react/#/documentation/alerts?ref=adr-admin-sidebar" target="_blank">
                 <i className="ni ni-ui-04" />
                 Components
               </NavLink>
@@ -256,7 +229,7 @@ const Sidebar = (props) => {
           </Nav>
           <Nav className="mb-md-3" navbar>
             <NavItem className="active-pro active">
-              <NavLink href="https://www.creative-tim.com/product/argon-dashboard-pro-react?ref=adr-admin-sidebar">
+              <NavLink href="https://www.creative-tim.com/product/argon-dashboard-pro-react?ref=adr-admin-sidebar" target="_blank">
                 <i className="ni ni-spaceship" />
                 Upgrade to PRO
               </NavLink>
