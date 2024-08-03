@@ -70,10 +70,14 @@ Resources:
             
             # Prepare item to be inserted into DynamoDB
             item = {
-              'user_id': user_attributes['sub'],
-              'email': user_attributes['email'],
+              'user_id': user_attributes['email'],
               'firstName': user_attributes.get('given_name', ''),
               'lastName': user_attributes.get('family_name', ''),
+              'address': '',
+              'city': '',
+              'country': '',
+              'postalCode': '',
+              'aboutMe': '',
               'createdAt': datetime.utcnow().isoformat()
             }
             

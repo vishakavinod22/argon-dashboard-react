@@ -20,12 +20,55 @@
 import { Button, Card, CardHeader, CardBody, FormGroup, Form, Input, Container, Row, Col } from "reactstrap";
 // core components
 import UserHeader from "components/Headers/UserHeader.js";
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 const Profile = () => {
 
   const firstName = localStorage.getItem('firstName');
   const lastName = localStorage.getItem('lastName');
   const userEmail = localStorage.getItem('userEmail');
+
+  const [address, setAddress] = useState("");
+  const [city, setCity] = useState("");
+  const [country, setCountry] = useState("");
+  const [postalCode, setPostalCode] = useState("");
+  const [aboutMe, setAboutMe] = useState("");
+
+  const fetchUserInfo = async () => {
+    try {
+      const getUserInfoRequestBody = {
+        email: userEmail
+      }
+      const getUserInfoResponse = await axios.post('https://cwrb7svck9.execute-api.us-east-1.amazonaws.com/build/getUserInfo', getUserInfoRequestBody);
+      setAddress(getUserInfoResponse.data.body.address); 
+      setCity(getUserInfoResponse.data.body.city);
+      setCountry(getUserInfoResponse.data.body.country);
+      setPostalCode(getUserInfoResponse.data.body.postalCode);
+      setAboutMe(getUserInfoResponse.data.body.aboutMe);
+    } catch (error) {
+      console.error('Error fetching user info:', error);
+    }
+  }
+
+  const handleSave = async (event) => {
+    const updateUserInfoRequestBody = {
+      email: userEmail,
+      address: address,
+      city: city,
+      country: country,
+      postalCode: postalCode,
+      aboutMe: aboutMe
+    }
+    const updateUserInfoResponse = await axios.post('https://cwrb7svck9.execute-api.us-east-1.amazonaws.com/build/updateUserInfo', updateUserInfoRequestBody);
+    console.log(updateUserInfoResponse.data);
+
+    fetchUserInfo();
+  }
+
+  useEffect(() => {
+    fetchUserInfo();
+  }, []);
 
   return (
     <>
@@ -38,7 +81,7 @@ const Profile = () => {
               <Row className="justify-content-center">
                 <Col className="order-lg-2" lg="3">
                   <div className="card-profile-image">
-                    <a href="#pablo" onClick={(e) => e.preventDefault()}>
+                    <a href="#" onClick={(e) => e.preventDefault()}>
                       <img
                         style={{
                           backgroundColor:"white"
@@ -67,23 +110,8 @@ const Profile = () => {
                     {firstName} {lastName}
                   </h3>
                   <div className="h5 font-weight-300">
-                    <i className="ni location_pin mr-2" />
-                    Bucharest, Romania
+                    {userEmail}
                   </div>
-                  <div className="h5 mt-4">
-                    <i className="ni business_briefcase-24 mr-2" />
-                    Solution Manager - Creative Tim Officer
-                  </div>
-                  <div>
-                    <i className="ni education_hat mr-2" />
-                    University of Computer Science
-                  </div>
-                  <hr className="my-4" />
-                  <p>
-                    Ryan — the name taken by Melbourne-raised, Brooklyn-based
-                    Nick Murphy — writes, performs and records all of his own
-                    music.
-                  </p>
                 </div>
               </CardBody>
             </Card>
@@ -98,10 +126,9 @@ const Profile = () => {
                   <Col className="text-right" xs="4">
                     <Button
                       color="primary"
-                      href="#pablo"
-                      onClick={(e) => e.preventDefault()}
-                      size="sm"
-                    >
+                      href="#"
+                      onClick={handleSave}
+                      size="sm" >
                       Save
                     </Button>
                   </Col>
@@ -128,6 +155,7 @@ const Profile = () => {
                             id="input-username"
                             placeholder="Username"
                             type="text"
+                            readOnly
                           />
                         </FormGroup>
                       </Col>
@@ -144,6 +172,7 @@ const Profile = () => {
                             id="input-email"
                             placeholder={userEmail}
                             type="email"
+                            readOnly
                           />
                         </FormGroup>
                       </Col>
@@ -163,6 +192,7 @@ const Profile = () => {
                             id="input-first-name"
                             placeholder="First name"
                             type="text"
+                            readOnly
                           />
                         </FormGroup>
                       </Col>
@@ -180,6 +210,7 @@ const Profile = () => {
                             id="input-last-name"
                             placeholder="Last name"
                             type="text"
+                            readOnly
                           />
                         </FormGroup>
                       </Col>
@@ -201,10 +232,11 @@ const Profile = () => {
                             Address
                           </label>
                           <Input
-                            className="form-control-alternative"
-                            defaultValue=""
+                            className="form-control-label"
                             id="input-address"
                             placeholder="Home Address"
+                            value = {address}
+                            onChange={(e) => setAddress(e.target.value)}
                             type="text"
                           />
                         </FormGroup>
@@ -220,10 +252,11 @@ const Profile = () => {
                             City
                           </label>
                           <Input
-                            className="form-control-alternative"
-                            defaultValue=""
+                            className="form-control-label"
                             id="input-city"
                             placeholder="City"
+                            value = {city}
+                            onChange={(e) => setCity(e.target.value)}
                             type="text"
                           />
                         </FormGroup>
@@ -237,10 +270,11 @@ const Profile = () => {
                             Country
                           </label>
                           <Input
-                            className="form-control-alternative"
-                            defaultValue=""
+                            className="form-control-label"
                             id="input-country"
                             placeholder="Country"
+                            value = {country}
+                            onChange={(e) => setCountry(e.target.value)}
                             type="text"
                           />
                         </FormGroup>
@@ -254,10 +288,12 @@ const Profile = () => {
                             Postal code
                           </label>
                           <Input
-                            className="form-control-alternative"
+                            className="form-control-label"
                             id="input-postal-code"
                             placeholder="Postal code"
-                            type="number"
+                            value = {postalCode}
+                            onChange={(e) => setPostalCode(e.target.value)}
+                            type="text"
                           />
                         </FormGroup>
                       </Col>
@@ -270,10 +306,11 @@ const Profile = () => {
                     <FormGroup>
                       <label>About Me</label>
                       <Input
-                        className="form-control-alternative"
+                        className="form-control-label"
                         placeholder="A few words about you ..."
                         rows="4"
-                        defaultValue=""
+                        value = {aboutMe}
+                        onChange={(e) => setAboutMe(e.target.value)}
                         type="textarea"
                       />
                     </FormGroup>

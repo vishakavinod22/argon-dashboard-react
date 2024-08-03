@@ -95,6 +95,7 @@ const Login = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     autoComplete="new-email"
+                    required
                   />
                 </InputGroup>
               </FormGroup>
@@ -111,6 +112,7 @@ const Login = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     autoComplete="new-password"
+                    required
                   />
                 </InputGroup>
               </FormGroup>

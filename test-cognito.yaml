@@ -74,6 +74,11 @@ Resources:
               'email': user_attributes['email'],
               'firstName': user_attributes.get('given_name', ''),
               'lastName': user_attributes.get('family_name', ''),
+              'address': '',
+              'city': '',
+              'country': '',
+              'postalCode': '',
+              'aboutMe': '',
               'createdAt': datetime.utcnow().isoformat()
             }
             
