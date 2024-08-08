@@ -15,6 +15,7 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 */
+
 const Chart = require("chart.js");
 //
 // Chart extension for making the bars rounded
@@ -307,6 +308,39 @@ function parseOptions(parent, options) {
 }
 
 // Example 1 of Chart inside src/views/Index.js (Sales value - Card)
+const prevYearData = (() => {
+  try {
+    const data = localStorage.getItem('prevYearData');
+    console.log(`prev year: ${data}`);
+    return data ? JSON.parse(data) : [];
+  } catch (e) {
+    console.error("Error parsing prevYearData from localStorage", e);
+    return [];
+  }
+})();
+
+const currYearData = (() => {
+  try {
+    const data = localStorage.getItem('currYearData');
+    console.log(`curr year: ${data}`);
+    return data ? JSON.parse(data) : [];
+  } catch (e) {
+    console.error("Error parsing currYearData from localStorage", e);
+    return [];
+  }
+})();
+
+const ordersData = (() => {
+  try {
+    const data = localStorage.getItem('ordersData');
+    console.log(`orders: ${data}`);
+    return data ? JSON.parse(data) : [];
+  } catch (e) {
+    console.error("Error parsing currYearData from localStorage", e);
+    return [];
+  }
+})();
+
 let chartExample1 = {
   options: {
     scales: {
@@ -319,7 +353,7 @@ let chartExample1 = {
           ticks: {
             callback: function (value) {
               if (!(value % 10)) {
-                return "$" + value + "k";
+                return "$" + value;
               }
             },
           },
@@ -337,7 +371,7 @@ let chartExample1 = {
             content += label;
           }
 
-          content += "$" + yLabel + "k";
+          content += "$" + yLabel;
           return content;
         },
       },
@@ -345,26 +379,26 @@ let chartExample1 = {
   },
   data1: (canvas) => {
     return {
-      labels: ["May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+      labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
       datasets: [
         {
           label: "Performance",
-          data: [0, 20, 10, 30, 15, 40, 20, 60, 60],
+          data: currYearData,
         },
       ],
     };
   },
   data2: (canvas) => {
     return {
-      labels: ["May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+      labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
       datasets: [
         {
           label: "Performance",
-          data: [0, 20, 5, 25, 10, 30, 15, 40, 40],
+          data: prevYearData,
         },
       ],
     };
-  },
+  }
 };
 
 // Example 2 of Chart inside src/views/Index.js (Total orders - Card)
@@ -375,7 +409,7 @@ let chartExample2 = {
         {
           ticks: {
             callback: function (value) {
-              if (!(value % 10)) {
+              if (!(value % 2)) {
                 //return '$' + value + 'k'
                 return value;
               }
@@ -400,11 +434,11 @@ let chartExample2 = {
     },
   },
   data: {
-    labels: ["Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
     datasets: [
       {
         label: "Sales",
-        data: [25, 20, 30, 22, 17, 29],
+        data: ordersData,
         maxBarThickness: 10,
       },
     ],
